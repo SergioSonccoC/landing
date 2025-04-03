@@ -1,1139 +1,1383 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Code, Database, Users, Layers, Shield, Menu, X, Settings, BarChart } from "lucide-react"
-import { motion, AnimatePresence, useScroll, useTransform, useInView } from "framer-motion"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  ArrowRight,
+  Code,
+  Database,
+  FileCode,
+  Globe,
+  Layers,
+  MessageSquare,
+  Menu,
+  Shield,
+  Users,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  ArrowDown,
+} from "lucide-react"
+import { useTheme } from "next-themes"
+import { ThemeToggle } from "@/components/theme-toggle"
 
-export default function LandingPage() {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1">
-        <HeroSection />
-        <FeaturesSection />
-        <TestimonialsSection />
-        <ProcessSection />
-        <CtaSection />
-      </main>
-      <Footer />
-    </div>
-  )
-}
-
-function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+export default function Home() {
   const [scrolled, setScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const { scrollY } = useScroll()
+  const headerRef = useRef<HTMLElement>(null)
+
+  // Estados para los carousels
+  const [serviceIndex, setServiceIndex] = useState(0)
+  const [projectIndex, setProjectIndex] = useState(0)
+
+  // Valores para animaciones basadas en scroll
+  const headerOpacity = useTransform(scrollY, [0, 50], [0, 1])
+  const headerBlur = useTransform(scrollY, [0, 50], [0, 8])
+  const headerHeight = useTransform(scrollY, [0, 100], [88, 64])
+  const logoScale = useTransform(scrollY, [0, 100], [1, 0.9])
+
+  // Datos para las secciones
+  const services = [
+    {
+      title: "Desarrollo de Software a Medida",
+      description:
+        "Soluciones personalizadas diseñadas específicamente para las necesidades y flujos de trabajo de su empresa.",
+      icon: <Code className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
+    },
+    {
+      title: "Sistemas Empresariales",
+      description:
+        "Sistemas robustos y escalables que crecen con su empresa y se integran con sus herramientas existentes.",
+      icon: <Database className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
+    },
+    {
+      title: "Soluciones en la Nube",
+      description: "Aplicaciones seguras y flexibles basadas en la nube, accesibles desde cualquier lugar del mundo.",
+      icon: <Globe className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
+    },
+    {
+      title: "Seguridad y Cumplimiento",
+      description: "Características de seguridad integradas y cumplimiento de las normativas y estándares del sector.",
+      icon: <Shield className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
+    },
+    {
+      title: "Integración de API",
+      description: "Integración perfecta con servicios de terceros y sistemas empresariales existentes.",
+      icon: <FileCode className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
+    },
+    {
+      title: "Soporte 24/7",
+      description: "Soporte técnico y mantenimiento las 24 horas para sus sistemas críticos para el negocio.",
+      icon: <MessageSquare className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
+    },
+  ]
+
+  const projects = [
+    {
+      title: "Sistema ERP para Logística Global",
+      description:
+        "Desarrollamos un sistema ERP personalizado que aumentó la eficiencia operativa en un 40% para una empresa de logística internacional.",
+      image: "/placeholder.svg?height=400&width=600",
+      tag: "Logística",
+    },
+    {
+      title: "Plataforma de Gestión de Inventario",
+      description:
+        "Creamos una solución de gestión de inventario en tiempo real que redujo los costos de almacenamiento en un 25% para un minorista con múltiples ubicaciones.",
+      image: "/placeholder.svg?height=400&width=600",
+      tag: "Retail",
+    },
+    {
+      title: "Aplicación de Servicio al Cliente",
+      description:
+        "Implementamos una aplicación omnicanal de servicio al cliente que mejoró la satisfacción del cliente en un 35% para una empresa de telecomunicaciones.",
+      image: "/placeholder.svg?height=400&width=600",
+      tag: "Telecomunicaciones",
+    },
+  ]
+
+  const processes = [
+    {
+      step: "1",
+      title: "Descubrimiento",
+      description: "Analizamos sus necesidades y objetivos para entender completamente su negocio.",
+      icon: <Users className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
+    },
+    {
+      step: "2",
+      title: "Planificación",
+      description: "Diseñamos la arquitectura y definimos el alcance del proyecto con plazos claros.",
+      icon: <Layers className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
+    },
+    {
+      step: "3",
+      title: "Desarrollo",
+      description: "Construimos su solución con metodologías ágiles y revisiones periódicas.",
+      icon: <Code className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
+    },
+    {
+      step: "4",
+      title: "Implementación",
+      description: "Desplegamos la solución y proporcionamos capacitación y soporte continuo.",
+      icon: <Globe className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
+    },
+  ]
 
   useEffect(() => {
+    setMounted(true)
     const handleScroll = () => {
-      setScrolled(window.scrollY > 10)
+      const isScrolled = window.scrollY > 10
+      if (isScrolled !== scrolled) {
+        setScrolled(isScrolled)
+      }
     }
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  }, [scrolled])
 
-  return (
-    <motion.header
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className={`sticky top-0 z-40 w-full backdrop-blur-md transition-all duration-300 ${
-        scrolled ? "bg-white/80 shadow-lg border-b border-gray-200/20" : "bg-transparent"
-      }`}
-    >
-      <div className="container flex h-16 items-center justify-between">
-        <motion.div
-          className="flex items-center gap-2"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Code className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold">Next Codex</span>
-        </motion.div>
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId)
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" })
+    }
+    setMobileMenuOpen(false)
+  }
 
-        <motion.nav
-          className="hidden md:flex gap-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3, staggerChildren: 0.1 }}
-        >
-          {["Servicios", "Clientes", "Proceso", "Contacto"].map((item, i) => (
-            <motion.div
-              key={item}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.3 + i * 0.1 }}
-            >
-              <Link
-                href={`#${item.toLowerCase()}`}
-                className="text-sm font-medium relative group px-3 py-2 rounded-md transition-all duration-300 hover:bg-primary/10"
-              >
-                {item}
-                <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-            </motion.div>
-          ))}
-        </motion.nav>
+  const navItems = [
+    { name: "Servicios", id: "services" },
+    { name: "Clientes", id: "clients" },
+    { name: "Proyectos", id: "projects" },
+    { name: "Proceso", id: "process" },
+    { name: "Contacto", id: "contact" },
+  ]
 
-        <motion.div
-          className="hidden md:flex gap-4"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-primary text-primary hover:bg-primary/10 transition-all duration-300"
-          >
-            Portafolio
-          </Button>
-          <Button size="sm" className="bg-primary hover:bg-emphasis transition-all duration-300">
-            Solicitar Presupuesto
-          </Button>
-        </motion.div>
-
-        <motion.button
-          className="md:hidden text-primary"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Alternar menú"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </motion.button>
-      </div>
-
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            className="container md:hidden py-4 border-t"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
-            <nav className="flex flex-col gap-4">
-              {["Servicios", "Clientes", "Proceso", "Contacto"].map((item, i) => (
-                <motion.div
-                  key={item}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: i * 0.1 }}
-                >
-                  <Link
-                    href={`#${item.toLowerCase()}`}
-                    className="text-sm font-medium transition-colors hover:text-primary"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item}
-                  </Link>
-                </motion.div>
-              ))}
-              <motion.div
-                className="flex gap-4 pt-2"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.4 }}
-              >
-                <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/10">
-                  Portafolio
-                </Button>
-                <Button size="sm" className="bg-primary hover:bg-emphasis">
-                  Solicitar Presupuesto
-                </Button>
-              </motion.div>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
-  )
-}
-
-function HeroSection() {
-  const { scrollYProgress } = useScroll()
-  const y = useTransform(scrollYProgress, [0, 0.5], [0, -50])
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0.5])
-
-  return (
-    <section className="w-full min-h-[90vh] flex items-center py-20 md:py-28 lg:py-32 xl:py-36 overflow-hidden relative bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#334155]">
-      {/* Elementos decorativos de fondo */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full opacity-10">
-          <div className="absolute top-[10%] right-[10%] w-64 h-64 rounded-full bg-[#60A5FA] filter blur-[80px]"></div>
-          <div className="absolute bottom-[20%] left-[5%] w-72 h-72 rounded-full bg-[#818CF8] filter blur-[100px]"></div>
-          <div className="absolute top-[40%] left-[30%] w-80 h-80 rounded-full bg-[#34D399] filter blur-[120px] opacity-30"></div>
-        </div>
-
-        {/* Patrón de puntos */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIwLjA1Ij48Y2lyY2xlIGN4PSIxIiBjeT0iMSIgcj0iMSIvPjwvZz48L3N2Zz4=')] opacity-20"></div>
-      </div>
-
-      <div className="container px-4 md:px-6 relative z-10">
-        <div className="grid gap-16 lg:grid-cols-[1fr_400px] lg:gap-24 xl:grid-cols-[1fr_600px] items-center">
-          <motion.div
-            className="flex flex-col justify-center space-y-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: "easeOut" }}
-            style={{ y, opacity }}
-          >
-            <div className="space-y-8">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.1 }}
-                className="inline-block rounded-lg bg-white/10 backdrop-blur-sm px-4 py-2 text-sm text-white font-medium border border-white/20"
-              >
-                Soluciones de Software Personalizadas
-              </motion.div>
-              <motion.h1
-                className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-white"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-              >
-                Desarrollo de Software a Medida para Tu Negocio
-              </motion.h1>
-              <motion.p
-                className="max-w-[600px] text-gray-300 text-lg md:text-xl leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.4 }}
-              >
-                Creamos soluciones de software personalizadas que se adaptan perfectamente a tus necesidades
-                específicas, procesos únicos y objetivos de negocio.
-              </motion.p>
-            </div>
-            <motion.div
-              className="flex flex-col gap-5 sm:flex-row sm:gap-8 pt-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.6 }}
-            >
-              <Button
-                size="lg"
-                className="px-8 py-6 text-base bg-primary hover:bg-white hover:text-[#0F172A] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                Solicitar Presupuesto
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-8 py-6 text-base bg-white/10 backdrop-blur-sm border-white/40 text-white hover:bg-white/30 hover:border-white transition-all duration-300 shadow-lg"
-              >
-                Ver Proyectos
-              </Button>
-            </motion.div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="relative mx-auto lg:mx-0 max-w-[500px] w-full mt-12 lg:mt-0"
-          >
-            <motion.div
-              className="absolute -inset-1 bg-gradient-to-r from-[#60A5FA] to-[#34D399] rounded-xl blur-sm opacity-70"
-              animate={{
-                opacity: [0.7, 0.9, 0.7],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Number.POSITIVE_INFINITY,
-                repeatType: "reverse",
-              }}
-            ></motion.div>
-            <Image
-              src="/placeholder.svg?height=550&width=550"
-              width={550}
-              height={550}
-              alt="Software personalizado Next Codex"
-              className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full relative z-10 shadow-xl"
-            />
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Línea divisoria con efecto de brillo */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-    </section>
-  )
-}
-
-function FeaturesSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, amount: 0.1 })
-  const [hoveredIndex, setHoveredIndex] = useState(null)
-
-  // Animación de fondo
-  const backgroundVariants = {
-    hidden: {
-      backgroundPosition: "0% 0%",
-    },
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
     visible: {
-      backgroundPosition: "100% 100%",
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 },
+    },
+  }
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
       transition: {
-        repeat: Number.POSITIVE_INFINITY,
-        repeatType: "reverse",
-        duration: 20,
-        ease: "linear",
+        staggerChildren: 0.1,
       },
     },
   }
 
-  return (
-    <section id="servicios" className="w-full py-12 md:py-24 lg:py-32 relative overflow-hidden">
-      {/* Fondo animado */}
-      <motion.div
-        className="absolute inset-0 -z-10 bg-gradient-to-br from-secondary via-white to-secondary/70"
-        variants={backgroundVariants}
-        initial="hidden"
-        animate="visible"
-      />
+  const fadeInScale = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.5 },
+    },
+  }
 
-      {/* Elementos decorativos */}
-      <div className="absolute inset-0 -z-5 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full opacity-10">
-          <div className="absolute top-[10%] right-[10%] w-64 h-64 rounded-full bg-primary filter blur-[80px]"></div>
-          <div className="absolute bottom-[20%] left-[5%] w-72 h-72 rounded-full bg-emphasis filter blur-[100px]"></div>
+  // Funciones para controlar los carousels
+  const nextService = () => {
+    setServiceIndex((prev) => (prev + 1) % services.length)
+  }
+
+  const prevService = () => {
+    setServiceIndex((prev) => (prev - 1 + services.length) % services.length)
+  }
+
+  const nextProject = () => {
+    setProjectIndex((prev) => (prev + 1) % projects.length)
+  }
+
+  const prevProject = () => {
+    setProjectIndex((prev) => (prev - 1 + projects.length) % projects.length)
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col dark:text-white transition-colors duration-500">
+      {/* Topbar mejorado con animaciones */}
+      <motion.header
+        ref={headerRef}
+        style={{
+          height: headerHeight,
+          backdropFilter: scrolled ? `blur(${headerBlur.get()}px)` : "none",
+        }}
+        className={`fixed top-0 z-50 w-full transition-all duration-500`}
+      >
+        <motion.div
+          className={`absolute inset-0 transition-all duration-500`}
+          style={{
+            opacity: headerOpacity,
+            backgroundColor: theme === "dark" ? "rgba(17, 24, 39, 0.8)" : "rgba(255, 255, 255, 0.8)",
+            borderBottom: scrolled
+              ? theme === "dark"
+                ? "1px solid rgba(75, 85, 99, 0.3)"
+                : "1px solid rgba(229, 231, 235, 0.5)"
+              : "none",
+          }}
+        />
+
+        <div className="container relative z-10 mx-auto flex h-full items-center justify-between px-4 md:px-6">
+          <motion.div className="flex items-center gap-6 md:gap-10" style={{ scale: logoScale }}>
+            <Link href="/" className="flex items-center space-x-2 group">
+              <motion.div
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.5 }}
+                className="relative flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 overflow-hidden group-hover:shadow-lg transition-all duration-300"
+              >
+                <Code className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6] relative z-10" />
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-[#3468CC]/20 to-[#5C8AE6]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  initial={{ scale: 0 }}
+                  whileHover={{ scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.div>
+              <span className="inline-block font-bold text-lg text-gray-900 dark:text-white">Next Codex</span>
+            </Link>
+
+            {/* Navegación de escritorio */}
+            <nav className="hidden gap-1 md:flex">
+              {navItems.map((item) => (
+                <motion.button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className="relative px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#3468CC] dark:text-gray-300 dark:hover:text-[#5C8AE6] transition-colors rounded-md overflow-hidden group"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <span className="relative z-10">{item.name}</span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-800 dark:to-gray-700 opacity-0 group-hover:opacity-100 transition-all duration-300"
+                    initial={{ y: "100%" }}
+                    whileHover={{ y: 0 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                </motion.button>
+              ))}
+            </nav>
+          </motion.div>
+
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                size="sm"
+                onClick={() => scrollToSection("contact")}
+                className="bg-gradient-to-r from-[#3468CC] to-[#2A54A0] hover:from-[#2A54A0] hover:to-[#1E3C7A] dark:from-[#5C8AE6] dark:to-[#3468CC] text-white shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Contáctanos
+              </Button>
+            </motion.div>
+
+            {/* Botón de menú móvil */}
+            <motion.button
+              className="flex md:hidden h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              {mobileMenuOpen ? (
+                <X className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+              ) : (
+                <Menu className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+              )}
+            </motion.button>
+          </div>
         </div>
 
-        {/* Patrón de puntos */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0iIzM0NjhDQyIgZmlsbC1vcGFjaXR5PSIwLjA1Ij48Y2lyY2xlIGN4PSIxIiBjeT0iMSIgcj0iMSIvPjwvZz48L3N2Zz4=')] opacity-20"></div>
-      </div>
-
-      <div className="container px-4 md:px-6 relative z-10" ref={ref}>
+        {/* Menú móvil */}
         <motion.div
-          className="flex flex-col items-center justify-center space-y-4 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.7 }}
+          className={`absolute top-full left-0 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-lg md:hidden overflow-hidden ${mobileMenuOpen ? "block" : "hidden"}`}
+          initial={{ height: 0, opacity: 0 }}
+          animate={{
+            height: mobileMenuOpen ? "auto" : 0,
+            opacity: mobileMenuOpen ? 1 : 0,
+          }}
+          transition={{ duration: 0.3 }}
         >
-          <div className="space-y-2">
-            <motion.div
-              className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              Nuestros Servicios
-            </motion.div>
-            <motion.h2
-              className="text-3xl font-bold tracking-tighter md:text-4xl/tight bg-gradient-to-r from-emphasis to-primary bg-clip-text text-transparent"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              Soluciones de software adaptadas a tus necesidades
-            </motion.h2>
-            <motion.p
-              className="max-w-[900px] text-muted-foreground md:text-xl/relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              Desarrollamos software personalizado que resuelve problemas específicos de tu negocio y te ayuda a
-              alcanzar tus objetivos.
-            </motion.p>
+          <div className="container mx-auto py-2 px-4">
+            <nav className="flex flex-col gap-1">
+              {navItems.map((item) => (
+                <motion.button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className="flex w-full items-center px-4 py-2 text-left text-sm font-medium text-gray-600 hover:text-[#3468CC] dark:text-gray-300 dark:hover:text-[#5C8AE6] hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+                  whileHover={{ x: 5 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  {item.name}
+                </motion.button>
+              ))}
+            </nav>
           </div>
         </motion.div>
+      </motion.header>
 
-        <div className="mx-auto max-w-6xl py-12">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                icon: <Layers className="h-10 w-10" />,
-                title: "Aplicaciones Web",
-                description:
-                  "Desarrollamos aplicaciones web a medida con interfaces intuitivas y funcionalidades adaptadas a tus procesos de negocio.",
-              },
-              {
-                icon: <Settings className="h-10 w-10" />,
-                title: "Software Empresarial",
-                description:
-                  "Creamos sistemas de gestión empresarial personalizados que automatizan y optimizan tus operaciones diarias.",
-              },
-              {
-                icon: <Database className="h-10 w-10" />,
-                title: "Integración de Sistemas",
-                description:
-                  "Conectamos tus sistemas existentes para crear flujos de trabajo eficientes y eliminar la duplicación de datos.",
-              },
-              {
-                icon: <Shield className="h-10 w-10" />,
-                title: "Seguridad y Cumplimiento",
-                description:
-                  "Implementamos soluciones seguras que cumplen con los estándares y regulaciones de tu industria.",
-              },
-              {
-                icon: <BarChart className="h-10 w-10" />,
-                title: "Análisis de Datos",
-                description:
-                  "Desarrollamos herramientas personalizadas para visualizar y analizar tus datos empresariales.",
-              },
-              {
-                icon: <Users className="h-10 w-10" />,
-                title: "Consultoría Tecnológica",
-                description:
-                  "Asesoramos en la selección e implementación de tecnologías que mejor se adapten a tus necesidades.",
-              },
-            ].map((feature, index) => (
-              <FeatureCard
-                key={index}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-                index={index}
-                isInView={isInView}
-                isHovered={hoveredIndex === index}
-                onHover={() => setHoveredIndex(index)}
-                onLeave={() => setHoveredIndex(null)}
+      {/* Main Info Section with Modern Gradient - MEJORADO */}
+      <section id="home" className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Fondo con efectos mejorados */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Animated gradient orbs - Más grandes y con más variedad */}
+          <div className="absolute top-[10%] left-[15%] w-[600px] h-[600px] rounded-full bg-gradient-to-r from-[#3468CC]/20 to-[#5C8AE6]/10 blur-3xl animate-pulse dark:from-[#3468CC]/10 dark:to-[#5C8AE6]/5"></div>
+          <div
+            className="absolute bottom-[10%] right-[15%] w-[500px] h-[500px] rounded-full bg-gradient-to-r from-[#2A54A0]/15 to-[#3468CC]/10 blur-3xl animate-pulse dark:from-[#2A54A0]/10 dark:to-[#3468CC]/5"
+            style={{ animationDelay: "1s" }}
+          ></div>
+          <div
+            className="absolute top-[40%] right-[25%] w-[300px] h-[300px] rounded-full bg-gradient-to-r from-[#5C8AE6]/15 to-[#3468CC]/10 blur-3xl animate-pulse dark:from-[#5C8AE6]/10 dark:to-[#3468CC]/5"
+            style={{ animationDelay: "1.5s" }}
+          ></div>
+          <div
+            className="absolute bottom-[30%] left-[25%] w-[350px] h-[350px] rounded-full bg-gradient-to-r from-[#3468CC]/15 to-[#2A54A0]/10 blur-3xl animate-pulse dark:from-[#3468CC]/10 dark:to-[#2A54A0]/5"
+            style={{ animationDelay: "2s" }}
+          ></div>
+
+          {/* Patrón de grilla en X - COMPLETAMENTE REDISEÑADO */}
+          <div className="absolute inset-0 opacity-50 dark:opacity-30">
+            <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="grid-pattern" width="100" height="100" patternUnits="userSpaceOnUse">
+                  <path
+                    d="M 0 0 L 100 100 M 100 0 L 0 100"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    fill="none"
+                    className="text-[#3468CC]/50 dark:text-[#5C8AE6]/50"
+                  />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid-pattern)" />
+            </svg>
+          </div>
+
+          {/* Partículas flotantes */}
+          <div className="absolute inset-0">
+            {[...Array(20)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full bg-[#3468CC]/20 dark:bg-[#5C8AE6]/20"
+                style={{
+                  width: Math.random() * 10 + 5 + "px",
+                  height: Math.random() * 10 + 5 + "px",
+                  left: Math.random() * 100 + "%",
+                  top: Math.random() * 100 + "%",
+                }}
+                animate={{
+                  y: [0, Math.random() * 100 - 50],
+                  x: [0, Math.random() * 100 - 50],
+                  opacity: [0.7, 0.2, 0.7],
+                }}
+                transition={{
+                  duration: Math.random() * 10 + 10,
+                  repeat: Number.POSITIVE_INFINITY,
+                  repeatType: "reverse",
+                }}
               />
             ))}
           </div>
-        </div>
-      </div>
-    </section>
-  )
-}
 
-function FeatureCard({ icon, title, description, index, isInView, isHovered, onHover, onLeave }) {
-  // Referencias para el efecto 3D
-  const cardRef = useRef(null)
-  const [rotateX, setRotateX] = useState(0)
-  const [rotateY, setRotateY] = useState(0)
+          {/* Additional gradient layers - Más intensos */}
+          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[#3468CC]/10 to-transparent dark:from-transparent dark:via-[#5C8AE6]/10 dark:to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#3468CC]/15 to-transparent dark:from-[#5C8AE6]/15 dark:to-transparent"></div>
 
-  // Efecto para manejar la rotación 3D basada en la posición del mouse
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return
-
-    const card = cardRef.current
-    const rect = card.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-
-    const centerX = rect.width / 2
-    const centerY = rect.height / 2
-
-    const rotateXValue = ((y - centerY) / centerY) * 5
-    const rotateYValue = ((centerX - x) / centerX) * 5
-
-    setRotateX(rotateXValue)
-    setRotateY(rotateYValue)
-  }
-
-  const resetRotation = () => {
-    setRotateX(0)
-    setRotateY(0)
-  }
-
-  // Variantes para las animaciones
-  const cardVariants = {
-    hidden: {
-      opacity: 0,
-      y: 50,
-      scale: 0.9,
-      rotateX: 0,
-      rotateY: 0,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      rotateX: 0,
-      rotateY: 0,
-      transition: {
-        type: "spring",
-        stiffness: 80,
-        damping: 15,
-        delay: 0.1 + index * 0.1,
-      },
-    },
-    hover: {
-      y: -20,
-      scale: 1.05,
-      rotateX: rotateX,
-      rotateY: rotateY,
-      boxShadow: "0 25px 50px -12px rgba(52, 104, 204, 0.25)",
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 15,
-      },
-    },
-  }
-
-  const iconContainerVariants = {
-    hidden: {
-      scale: 0.8,
-      backgroundColor: "rgba(228, 235, 248, 1)",
-    },
-    visible: {
-      scale: 1,
-      backgroundColor: "rgba(228, 235, 248, 1)",
-      transition: {
-        delay: 0.2 + index * 0.1,
-        duration: 0.3,
-      },
-    },
-    hover: {
-      scale: 1.2,
-      backgroundColor: "rgba(52, 104, 204, 1)",
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 10,
-      },
-    },
-  }
-
-  const iconVariants = {
-    hidden: {
-      scale: 1,
-      color: "rgba(52, 104, 204, 1)",
-    },
-    visible: {
-      scale: 1,
-      color: "rgba(52, 104, 204, 1)",
-      transition: {
-        delay: 0.3 + index * 0.1,
-      },
-    },
-    hover: {
-      scale: 1,
-      color: "rgba(255, 255, 255, 1)",
-      rotate: 360,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 10,
-      },
-    },
-  }
-
-  const titleVariants = {
-    hidden: {
-      y: 10,
-      opacity: 0,
-    },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        delay: 0.4 + index * 0.1,
-      },
-    },
-    hover: {
-      color: "#2A54A0",
-      scale: 1.05,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 10,
-      },
-    },
-  }
-
-  const descriptionVariants = {
-    hidden: {
-      y: 10,
-      opacity: 0,
-    },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        delay: 0.5 + index * 0.1,
-      },
-    },
-  }
-
-  // Efecto de partículas para el hover
-  const particlesVariants = {
-    hidden: {
-      opacity: 0,
-    },
-    hover: {
-      opacity: 1,
-      transition: {
-        duration: 0.2,
-      },
-    },
-  }
-
-  return (
-    <motion.div
-      ref={cardRef}
-      className="relative flex flex-col items-center rounded-xl border border-primary/10 bg-white p-8 shadow-lg overflow-hidden"
-      variants={cardVariants}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
-      whileHover="hover"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={resetRotation}
-      onMouseEnter={onHover}
-      onMouseOut={onLeave}
-      style={{
-        transformStyle: "preserve-3d",
-        perspective: "1000px",
-      }}
-    >
-      {/* Efecto de brillo en hover */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-emphasis/20 opacity-0"
-        initial={{ opacity: 0 }}
-        whileHover={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      />
-
-      {/* Partículas decorativas */}
-      <motion.div className="absolute inset-0 pointer-events-none" variants={particlesVariants}>
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 rounded-full bg-primary/30"
-            initial={{
-              x: Math.random() * 100 - 50,
-              y: Math.random() * 100 - 50,
-              opacity: 0,
-            }}
-            animate={
-              isHovered
-                ? {
-                    x: [Math.random() * 100 - 50, Math.random() * 100 - 50],
-                    y: [Math.random() * 100 - 50, Math.random() * 100 - 50],
-                    opacity: [0, 0.7, 0],
-                    scale: [0, 1, 0],
-                  }
-                : {}
-            }
-            transition={{
-              duration: 2,
-              repeat: Number.POSITIVE_INFINITY,
-              repeatType: "loop",
-              delay: i * 0.2,
-            }}
-          />
-        ))}
-      </motion.div>
-
-      <motion.div
-        className="relative z-10 flex flex-col items-center space-y-6 text-center"
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        <motion.div className="p-3 rounded-full" variants={iconContainerVariants}>
-          <motion.div variants={iconVariants} className="relative z-10">
-            {icon}
-          </motion.div>
-        </motion.div>
-
-        <div className="space-y-3">
-          <motion.h3 className="text-xl font-bold" variants={titleVariants}>
-            {title}
-          </motion.h3>
-
-          <motion.p className="text-muted-foreground" variants={descriptionVariants}>
-            {description}
-          </motion.p>
-        </div>
-
-        <motion.div
-          className="absolute bottom-4 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent"
-          initial={{ scaleX: 0, opacity: 0 }}
-          whileHover={{ scaleX: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        />
-      </motion.div>
-    </motion.div>
-  )
-}
-
-function TestimonialsSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, amount: 0.2 })
-
-  return (
-    <section id="clientes" className="w-full py-12 md:py-24 lg:py-32 relative overflow-hidden">
-      <motion.div
-        className="absolute inset-0 -z-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.05 }}
-        transition={{ duration: 1 }}
-      >
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary rounded-full filter blur-3xl opacity-30"></div>
-        <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-emphasis rounded-full filter blur-3xl opacity-30"></div>
-      </motion.div>
-
-      <div className="container px-4 md:px-6" ref={ref}>
-        <motion.div
-          className="flex flex-col items-center justify-center space-y-4 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.7 }}
-        >
-          <div className="space-y-2">
-            <motion.div
-              className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              Clientes Satisfechos
-            </motion.div>
-            <motion.h2
-              className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-emphasis"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              Historias de éxito de nuestros clientes
-            </motion.h2>
-            <motion.p
-              className="max-w-[900px] text-muted-foreground md:text-xl/relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              Descubre cómo nuestras soluciones personalizadas han transformado negocios en diferentes industrias.
-            </motion.p>
+          {/* Líneas decorativas */}
+          <div className="absolute inset-0 overflow-hidden">
+            <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <motion.path
+                d="M0,0 Q50,50 100,0"
+                stroke="rgba(52, 104, 204, 0.1)"
+                strokeWidth="0.5"
+                fill="none"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 2, ease: "easeInOut" }}
+              />
+              <motion.path
+                d="M0,100 Q50,50 100,100"
+                stroke="rgba(52, 104, 204, 0.1)"
+                strokeWidth="0.5"
+                fill="none"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 2, ease: "easeInOut", delay: 0.5 }}
+              />
+            </svg>
           </div>
-        </motion.div>
+          {/* Efecto de malla moderna */}
+          <div className="absolute inset-0 bg-[radial-gradient(#3468CC_1px,transparent_1px)] dark:bg-[radial-gradient(#5C8AE6_1px,transparent_1px)] [background-size:20px_20px] opacity-[0.15]"></div>
 
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-2 lg:grid-cols-3">
-          {[
-            {
-              quote:
-                "Next Codex desarrolló un sistema de gestión que se adaptó perfectamente a nuestros procesos únicos. Aumentamos nuestra eficiencia operativa en un 40%.",
-              author: "Carlos Méndez",
-              role: "Director de Operaciones, LogisTech",
-            },
-            {
-              quote:
-                "La aplicación web que crearon para nuestro servicio de atención al cliente ha mejorado drásticamente nuestra capacidad de respuesta y satisfacción del cliente.",
-              author: "Ana Martínez",
-              role: "Gerente de Servicio al Cliente, RetailPlus",
-            },
-            {
-              quote:
-                "Gracias a la solución de integración desarrollada por Next Codex, ahora todos nuestros sistemas se comunican perfectamente, eliminando la duplicación de trabajo.",
-              author: "Roberto Sánchez",
-              role: "CIO, FinancialGroup",
-            },
-          ].map((testimonial, index) => (
-            <TestimonialCard
-              key={index}
-              quote={testimonial.quote}
-              author={testimonial.author}
-              role={testimonial.role}
-              index={index}
-              isInView={isInView}
-            />
-          ))}
+          {/* Efecto de luz brillante */}
+          <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-[#3468CC]/20 dark:bg-[#5C8AE6]/20 blur-[100px]"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] rounded-full bg-[#2A54A0]/20 dark:bg-[#3468CC]/20 blur-[100px]"></div>
         </div>
-      </div>
-    </section>
-  )
-}
 
-function TestimonialCard({ quote, author, role, index, isInView }) {
-  return (
-    <motion.div
-      className="flex flex-col justify-between space-y-4 rounded-lg border bg-white p-6 shadow-sm hover-card"
-      initial={{ opacity: 0, y: 20, rotateY: -5 }}
-      animate={isInView ? { opacity: 1, y: 0, rotateY: 0 } : { opacity: 0, y: 20, rotateY: -5 }}
-      transition={{
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-        delay: 0.1 + index * 0.08,
-      }}
-      whileHover={{
-        y: -5,
-        scale: 1.02,
-        boxShadow: "0 10px 25px rgba(52, 104, 204, 0.2)",
-      }}
-      whileTap={{ scale: 0.98 }}
-    >
-      <motion.p
-        className="text-muted-foreground relative"
-        initial={{ opacity: 0 }}
-        animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-      >
-        <span className="text-primary text-4xl absolute -top-2 -left-2 opacity-20">"</span>
-        {quote}
-        <span className="text-primary text-4xl absolute -bottom-5 -right-2 opacity-20">"</span>
-      </motion.p>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-      >
-        <p className="font-semibold text-emphasis">{author}</p>
-        <p className="text-sm text-muted-foreground">{role}</p>
-      </motion.div>
-    </motion.div>
-  )
-}
+        {/* Main content - Rediseñado con más espacio */}
+        <div className="bg-gradient-to-br from-[#E4EBF8]/80 via-white to-[#E4EBF8]/80 dark:from-gray-800/90 dark:via-gray-900 dark:to-gray-800/90 w-full min-h-screen flex items-center py-20 md:py-0 backdrop-blur-sm transition-colors duration-500">
+          <div className="container px-6 md:px-8 relative pt-16 md:pt-16 max-w-7xl mx-auto">
+            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-20 items-center">
+              <motion.div
+                className="flex flex-col justify-center space-y-8"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={{
+                  hidden: { opacity: 0, x: -50 },
+                  visible: {
+                    opacity: 1,
+                    x: 0,
+                    transition: {
+                      type: "spring",
+                      stiffness: 100,
+                      damping: 15,
+                      duration: 0.8,
+                    },
+                  },
+                }}
+              >
+                <div className="space-y-6">
+                  {/* Título reducido de tamaño */}
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter leading-tight text-transparent bg-gradient-to-r from-[#2A54A0] to-[#3468CC] bg-clip-text dark:from-[#5C8AE6] dark:to-[#3468CC]">
+                    Soluciones de Software para Empresas Modernas
+                  </h1>
+                  <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-xl leading-relaxed">
+                    Optimiza operaciones, aumenta la productividad y potencia el crecimiento con nuestros sistemas de
+                    software personalizados diseñados para el futuro.
+                  </p>
+                </div>
 
-function ProcessSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, amount: 0.2 })
+                {/* Valores de la empresa en lugar de estadísticas */}
+                <div className="grid grid-cols-3 gap-4 py-4">
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold text-[#3468CC] dark:text-[#5C8AE6]">Innovación</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Soluciones creativas</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold text-[#3468CC] dark:text-[#5C8AE6]">Calidad</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Código limpio</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xl font-bold text-[#3468CC] dark:text-[#5C8AE6]">Soporte</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Siempre disponible</span>
+                  </div>
+                </div>
 
-  return (
-    <section id="proceso" className="w-full py-12 md:py-24 lg:py-32 bg-secondary">
-      <div className="container px-4 md:px-6" ref={ref}>
-        <motion.div
-          className="flex flex-col items-center justify-center space-y-4 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.7 }}
-        >
-          <div className="space-y-2">
-            <motion.div
-              className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              Nuestro Proceso
-            </motion.div>
-            <motion.h2
-              className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-emphasis"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              Cómo trabajamos
-            </motion.h2>
-            <motion.p
-              className="max-w-[900px] text-muted-foreground md:text-xl/relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              Nuestro enfoque metódico garantiza que entregamos soluciones que realmente satisfacen tus necesidades.
-            </motion.p>
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
+                    <Button
+                      size="lg"
+                      className="w-full sm:w-auto bg-gradient-to-r from-[#3468CC] to-[#2A54A0] hover:from-[#2A54A0] hover:to-[#1E3C7A] dark:from-[#5C8AE6] dark:to-[#3468CC] text-white shadow-lg hover:shadow-xl transition-all duration-300 text-base"
+                      onClick={() => scrollToSection("contact")}
+                    >
+                      Solicitar Demo
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full sm:w-auto border-[#3468CC] text-[#3468CC] hover:bg-[#E4EBF8] dark:border-[#5C8AE6] dark:text-[#5C8AE6] dark:hover:bg-gray-800 transition-all duration-300 text-base"
+                    >
+                      Conocer Más
+                    </Button>
+                  </motion.div>
+                </div>
+
+                {/* Scroll indicator - Mejorado */}
+                <motion.div
+                  className="flex items-center justify-center md:justify-start gap-2 text-sm font-medium text-[#3468CC] dark:text-[#5C8AE6] mt-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8, duration: 0.5 }}
+                  onClick={() => scrollToSection("services")}
+                >
+                  <span>Descubre más</span>
+                  <motion.div
+                    animate={{ y: [0, 5, 0] }}
+                    transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
+                    className="bg-[#E4EBF8] dark:bg-gray-800 rounded-full p-1"
+                  >
+                    <ArrowDown className="h-4 w-4" />
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+
+              {/* Imagen principal mejorada con más cards alrededor */}
+              <motion.div
+                className="flex items-center justify-center"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
+                <div className="relative">
+                  {/* Círculos decorativos */}
+                  <div className="absolute -z-10 -left-10 -top-10 w-[600px] h-[600px] rounded-full border border-[#3468CC]/10 dark:border-[#5C8AE6]/10"></div>
+                  <div className="absolute -z-10 -left-5 -top-5 w-[550px] h-[550px] rounded-full border border-[#3468CC]/10 dark:border-[#5C8AE6]/10"></div>
+                  <div className="absolute -z-10 left-0 top-0 w-[500px] h-[500px] rounded-full border border-[#3468CC]/10 dark:border-[#5C8AE6]/10"></div>
+
+                  {/* Glowing effect behind image */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#3468CC]/30 to-transparent rounded-full blur-3xl"></div>
+
+                  {/* Animated rings */}
+                  <div
+                    className="absolute inset-0 rounded-full border border-[#3468CC]/20 dark:border-[#5C8AE6]/20 animate-ping"
+                    style={{ animationDuration: "3s" }}
+                  ></div>
+                  <div
+                    className="absolute inset-0 rounded-full border-2 border-[#3468CC]/10 dark:border-[#5C8AE6]/10 animate-ping"
+                    style={{ animationDuration: "4s", animationDelay: "1s" }}
+                  ></div>
+
+                  {/* Elementos flotantes alrededor de la imagen - Más pequeños y modernos */}
+                  <motion.div
+                    className="absolute -right-8 top-1/4 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5, duration: 0.5 }}
+                  >
+                    <Shield className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute -left-8 top-2/3 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7, duration: 0.5 }}
+                  >
+                    <Database className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute -bottom-8 left-1/3 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.9, duration: 0.5 }}
+                  >
+                    <Globe className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                  </motion.div>
+
+                  {/* Nuevas cards adicionales */}
+                  <motion.div
+                    className="absolute -top-8 left-1/3 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.1, duration: 0.5 }}
+                  >
+                    <Code className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute right-1/4 -bottom-8 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.3, duration: 0.5 }}
+                  >
+                    <FileCode className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute -left-6 top-1/4 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.5, duration: 0.5 }}
+                  >
+                    <Layers className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                  </motion.div>
+
+                  {/* Imagen principal con efecto moderno */}
+                  <div className="relative h-[350px] w-[350px] sm:h-[400px] sm:w-[400px] md:h-[450px] md:w-[450px] lg:h-[500px] lg:w-[500px] group">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#3468CC]/10 to-[#5C8AE6]/5 dark:from-[#3468CC]/5 dark:to-[#5C8AE6]/10 group-hover:from-[#3468CC]/20 group-hover:to-[#5C8AE6]/10 transition-all duration-700"></div>
+                    <Image
+                      src="/placeholder.svg?height=500&width=500"
+                      alt="Dashboard Preview"
+                      fill
+                      className="object-contain drop-shadow-2xl transition-all duration-700 group-hover:scale-105"
+                      priority
+                    />
+                    <div className="absolute inset-0 rounded-full border border-[#3468CC]/20 dark:border-[#5C8AE6]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+                    {/* Efecto de brillo en la parte inferior */}
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-10 bg-[#3468CC]/20 dark:bg-[#5C8AE6]/20 blur-2xl rounded-full"></div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
-        </motion.div>
-
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-2 lg:grid-cols-4 relative">
-          <motion.div
-            className="absolute top-1/2 left-0 right-0 h-1 bg-primary/30 -z-10 hidden lg:block"
-            initial={{ scaleX: 0 }}
-            animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-          />
-
-          {[
-            {
-              number: "1",
-              title: "Descubrimiento",
-              description:
-                "Analizamos a fondo tus necesidades, procesos y objetivos para entender completamente tu negocio.",
-            },
-            {
-              number: "2",
-              title: "Diseño",
-              description:
-                "Creamos prototipos y diseños detallados de la solución, asegurando que cumpla con tus expectativas.",
-            },
-            {
-              number: "3",
-              title: "Desarrollo",
-              description:
-                "Construimos tu solución utilizando metodologías ágiles, con revisiones regulares para garantizar la calidad.",
-            },
-            {
-              number: "4",
-              title: "Implementación",
-              description: "Desplegamos la solución, proporcionamos capacitación y ofrecemos soporte continuo.",
-            },
-          ].map((process, index) => (
-            <ProcessCard
-              key={index}
-              number={process.number}
-              title={process.title}
-              description={process.description}
-              index={index}
-              isInView={isInView}
-            />
-          ))}
         </div>
-      </div>
-    </section>
-  )
-}
+      </section>
 
-function ProcessCard({ number, title, description, index, isInView }) {
-  return (
-    <motion.div
-      className="flex flex-col items-center space-y-2 rounded-lg border bg-white p-6 shadow-sm hover-card relative z-10"
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 20, scale: 0.95 }}
-      transition={{
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-        delay: 0.1 + index * 0.12,
-      }}
-      whileHover={{
-        y: -5,
-        scale: 1.03,
-        boxShadow: "0 10px 25px rgba(52, 104, 204, 0.2)",
-      }}
-      whileTap={{ scale: 0.97 }}
-    >
-      <motion.div
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl font-bold text-primary-foreground"
-        initial={{ scale: 0.8 }}
-        animate={isInView ? { scale: [0.8, 1.2, 1] } : { scale: 0.8 }}
-        transition={{
-          duration: 0.5,
-          delay: 0.4 + index * 0.15,
-          times: [0, 0.6, 1],
-        }}
+      {/* Services Section - Carousel */}
+      <section
+        id="services"
+        className="w-full py-12 md:py-20 bg-gradient-to-br from-white to-[#E4EBF8] dark:from-gray-900 dark:to-gray-800 border-t border-transparent dark:border-gray-700 transition-colors duration-500"
       >
-        {number}
-      </motion.div>
-      <h3 className="text-xl font-bold text-emphasis">{title}</h3>
-      <p className="text-center text-muted-foreground">{description}</p>
-    </motion.div>
-  )
-}
-
-function CtaSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, amount: 0.2 })
-
-  return (
-    <section id="contacto" className="w-full py-12 md:py-16 lg:py-20 relative overflow-hidden">
-      <motion.div
-        className="absolute inset-0 -z-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.05 }}
-        transition={{ duration: 1 }}
-      >
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/10 to-emphasis/10"></div>
-      </motion.div>
-
-      <div className="container px-4 md:px-6" ref={ref}>
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
+        <div className="container px-4 md:px-6">
           <motion.div
-            className="flex flex-col justify-center space-y-6"
-            initial={{ opacity: 0, x: -50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
-            transition={{ duration: 0.7 }}
+            className="flex flex-col items-center justify-center space-y-4 text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
           >
             <div className="space-y-4">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="inline-block rounded-lg bg-primary/10 px-4 py-2 text-sm text-primary font-medium border border-primary/20"
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="inline-block rounded-lg bg-gradient-to-r from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 px-3 py-1 text-sm text-[#3468CC] dark:text-[#5C8AE6] font-semibold"
               >
-                Comienza Tu Proyecto
+                Servicios
               </motion.div>
               <motion.h2
-                className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-emphasis"
                 initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="text-3xl md:text-4xl font-bold tracking-tighter text-transparent bg-gradient-to-r from-[#2A54A0] to-[#3468CC] bg-clip-text dark:from-[#5C8AE6] dark:to-[#3468CC] sm:text-4xl md:text-5xl lg:text-6xl"
               >
-                ¿Listo para transformar tu negocio con software a medida?
+                Soluciones Integrales de Software
               </motion.h2>
               <motion.p
-                className="max-w-[600px] text-muted-foreground md:text-xl/relaxed"
                 initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                className="max-w-[900px] text-gray-600 dark:text-gray-300 md:text-xl/relaxed lg:text-xl/relaxed xl:text-xl/relaxed"
               >
-                Cuéntanos sobre tu proyecto y descubre cómo podemos ayudarte a alcanzar tus objetivos con soluciones
-                personalizadas.
+                Nuestros sistemas empresariales están diseñados para resolver los desafíos más complejos de su negocio.
               </motion.p>
             </div>
-            <motion.div
-              className="flex flex-col gap-4 sm:flex-row sm:gap-6 pt-2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <Button
-                size="lg"
-                className="px-8 py-5 text-base bg-primary hover:bg-emphasis transition-all duration-300 transform hover:scale-105 btn-pulse shadow-lg"
-              >
-                Solicitar Presupuesto
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-8 py-5 text-base border-primary text-primary hover:bg-primary/10 transition-all duration-300"
-              >
-                Agendar Consulta
-              </Button>
-            </motion.div>
           </motion.div>
 
-          <motion.div
-            className="flex items-center justify-center"
-            initial={{ opacity: 0, x: 50 }}
-            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-          >
-            <motion.div
-              className="rounded-xl border border-primary/20 bg-white/80 backdrop-blur-sm p-8 shadow-lg w-full max-w-md"
-              initial={{ y: 20 }}
-              animate={isInView ? { y: 0 } : { y: 20 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              whileHover={{ boxShadow: "0 15px 30px rgba(52, 104, 204, 0.15)" }}
-            >
-              <div className="relative">
-                <h3 className="text-2xl font-bold mb-6 text-emphasis">Cuéntanos sobre tu proyecto</h3>
-                <form className="space-y-5">
-                  <motion.div
-                    className="space-y-2"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3, delay: 0.4 }}
-                  >
-                    <label htmlFor="name" className="text-sm font-medium text-emphasis">
-                      Nombre
-                    </label>
-                    <input
-                      id="name"
-                      className="w-full rounded-md border border-primary/20 bg-white/50 px-4 py-2.5 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all duration-300"
-                      placeholder="Ingresa tu nombre"
+          {/* Carousel para móvil */}
+          <div className="mt-8 md:hidden">
+            <div className="relative px-4">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={serviceIndex}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full"
+                >
+                  <Card className="flex flex-col items-center text-center h-full border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#3468CC]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <CardHeader>
+                      <motion.div
+                        className="mb-2 bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 p-3 rounded-full"
+                        whileHover={{
+                          rotate: [0, 10, -10, 0],
+                          transition: { duration: 0.5 },
+                        }}
+                      >
+                        {services[serviceIndex].icon}
+                      </motion.div>
+                      <CardTitle className="text-xl text-[#2A54A0] dark:text-[#5C8AE6] group-hover:text-[#3468CC] dark:group-hover:text-white transition-colors duration-300">
+                        {services[serviceIndex].title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="text-base dark:text-gray-300">
+                        {services[serviceIndex].description}
+                      </CardDescription>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Controles del carousel */}
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={prevService}
+                  className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
+                >
+                  <ChevronLeft className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+                </button>
+
+                <div className="flex space-x-2 items-center">
+                  {services.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setServiceIndex(i)}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        i === serviceIndex ? "w-6 bg-[#3468CC] dark:bg-[#5C8AE6]" : "w-2 bg-gray-300 dark:bg-gray-600"
+                      }`}
+                      aria-label={`Go to slide ${i + 1}`}
                     />
-                  </motion.div>
-                  <motion.div
-                    className="space-y-2"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3, delay: 0.5 }}
-                  >
-                    <label htmlFor="email" className="text-sm font-medium text-emphasis">
-                      Correo electrónico
-                    </label>
-                    <input
-                      id="email"
-                      type="email"
-                      className="w-full rounded-md border border-primary/20 bg-white/50 px-4 py-2.5 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all duration-300"
-                      placeholder="Ingresa tu correo electrónico"
-                    />
-                  </motion.div>
-                  <motion.div
-                    className="space-y-2"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3, delay: 0.6 }}
-                  >
-                    <label htmlFor="company" className="text-sm font-medium text-emphasis">
-                      Empresa
-                    </label>
-                    <input
-                      id="company"
-                      className="w-full rounded-md border border-primary/20 bg-white/50 px-4 py-2.5 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all duration-300"
-                      placeholder="Ingresa el nombre de tu empresa"
-                    />
-                  </motion.div>
-                  <motion.div
-                    className="space-y-2"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3, delay: 0.7 }}
-                  >
-                    <label htmlFor="message" className="text-sm font-medium text-emphasis">
-                      Describe tu proyecto
-                    </label>
-                    <textarea
-                      id="message"
-                      className="w-full rounded-md border border-primary/20 bg-white/50 px-4 py-2.5 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent transition-all duration-300 min-h-[100px] resize-none"
-                      placeholder="Cuéntanos sobre tus necesidades y objetivos"
-                    />
-                  </motion.div>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3, delay: 0.8 }}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="pt-2"
-                  >
-                    <Button
-                      type="submit"
-                      className="w-full bg-primary hover:bg-emphasis transition-all duration-300 py-5 text-base font-medium shadow-md"
-                    >
-                      Enviar
-                    </Button>
-                  </motion.div>
-                </form>
+                  ))}
+                </div>
+
+                <button
+                  onClick={nextService}
+                  className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
+                >
+                  <ChevronRight className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+                </button>
               </div>
+            </div>
+          </div>
+
+          {/* Grid para desktop */}
+          <motion.div
+            className="mx-auto hidden md:grid max-w-5xl grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 py-8 md:py-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
+            {services.map((service, i) => (
+              <motion.div
+                key={i}
+                variants={fadeInScale}
+                whileHover={{
+                  scale: 1.05,
+                  transition: { duration: 0.3 },
+                }}
+              >
+                <Card className="flex flex-col items-center text-center h-full border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#3468CC]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <CardHeader>
+                    <motion.div
+                      className="mb-2 bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 p-3 rounded-full"
+                      whileHover={{
+                        rotate: [0, 10, -10, 0],
+                        transition: { duration: 0.5 },
+                      }}
+                    >
+                      {service.icon}
+                    </motion.div>
+                    <CardTitle className="text-xl text-[#2A54A0] dark:text-[#5C8AE6] group-hover:text-[#3468CC] dark:group-hover:text-white transition-colors duration-300">
+                      {service.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-base dark:text-gray-300">{service.description}</CardDescription>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Clients Section - 2 por fila */}
+      <section
+        id="clients"
+        className="w-full py-12 md:py-20 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 transition-colors duration-500"
+      >
+        <div className="container px-4 md:px-6">
+          <motion.div
+            className="flex flex-col items-center justify-center space-y-4 text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+          >
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="inline-block rounded-lg bg-gradient-to-r from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 px-3 py-1 text-sm text-[#3468CC] dark:text-[#5C8AE6] font-semibold"
+              >
+                Clientes
+              </motion.div>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="text-3xl md:text-4xl font-bold tracking-tighter text-transparent bg-gradient-to-r from-[#2A54A0] to-[#3468CC] bg-clip-text dark:from-[#5C8AE6] dark:to-[#3468CC] sm:text-4xl md:text-5xl lg:text-6xl"
+              >
+                Empresas que confían en nosotros
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                className="max-w-[900px] text-gray-600 dark:text-gray-300 md:text-xl/relaxed lg:text-xl/relaxed xl:text-xl/relaxed"
+              >
+                Trabajamos con empresas líderes en diversos sectores para impulsar su transformación digital.
+              </motion.p>
+            </div>
+          </motion.div>
+
+          {/* Grid de clientes - 2 por fila en móvil */}
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-8 py-8 md:py-16"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <motion.div
+                key={i}
+                className="flex items-center justify-center"
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: {
+                      duration: 0.5,
+                      delay: i * 0.1,
+                    },
+                  },
+                }}
+                whileHover={{
+                  scale: 1.1,
+                  transition: { duration: 0.3 },
+                }}
+              >
+                <Image
+                  src={`/placeholder.svg?height=60&width=180&text=Cliente+${i}`}
+                  alt={`Cliente ${i}`}
+                  width={180}
+                  height={60}
+                  className="opacity-70 grayscale transition-all duration-500 hover:opacity-100 hover:grayscale-0 hover:drop-shadow-lg"
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Projects Section - Carousel */}
+      <section
+        id="projects"
+        className="w-full py-12 md:py-20 bg-gradient-to-br from-white to-[#E4EBF8] dark:from-gray-900 dark:to-gray-800 border-t border-gray-100 dark:border-gray-800 transition-colors duration-500"
+      >
+        <div className="container px-4 md:px-6">
+          <motion.div
+            className="flex flex-col items-center justify-center space-y-4 text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+          >
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="inline-block rounded-lg bg-gradient-to-r from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 px-3 py-1 text-sm text-[#3468CC] dark:text-[#5C8AE6] font-semibold"
+              >
+                Proyectos
+              </motion.div>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="text-3xl md:text-4xl font-bold tracking-tighter text-transparent bg-gradient-to-r from-[#2A54A0] to-[#3468CC] bg-clip-text dark:from-[#5C8AE6] dark:to-[#3468CC] sm:text-4xl md:text-5xl lg:text-6xl"
+              >
+                Casos de Éxito
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                className="max-w-[900px] text-gray-600 dark:text-gray-300 md:text-xl/relaxed lg:text-xl/relaxed xl:text-xl/relaxed"
+              >
+                Descubra cómo hemos ayudado a empresas como la suya a alcanzar sus objetivos tecnológicos.
+              </motion.p>
+            </div>
+          </motion.div>
+
+          {/* Carousel para móvil */}
+          <div className="mt-8 md:hidden">
+            <div className="relative px-4">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={projectIndex}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -100 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full"
+                >
+                  <Card className="overflow-hidden border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 group">
+                    <div className="relative h-48 w-full overflow-hidden">
+                      <Image
+                        src={projects[projectIndex].image || "/placeholder.svg"}
+                        alt={projects[projectIndex].title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="absolute right-2 top-2 rounded-full bg-gradient-to-r from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC] px-3 py-1 text-xs font-medium text-white shadow-lg">
+                        {projects[projectIndex].tag}
+                      </div>
+                    </div>
+                    <CardHeader>
+                      <CardTitle className="text-[#2A54A0] dark:text-[#5C8AE6] group-hover:text-[#3468CC] dark:group-hover:text-white transition-colors duration-300">
+                        {projects[projectIndex].title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 dark:text-gray-300">{projects[projectIndex].description}</p>
+                    </CardContent>
+                    <CardFooter>
+                      <Button
+                        variant="ghost"
+                        className="text-[#3468CC] hover:bg-[#E4EBF8] hover:text-[#2A54A0] dark:text-[#5C8AE6] dark:hover:bg-gray-700 group transition-all duration-300"
+                      >
+                        Ver Caso Completo
+                        <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-2" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Controles del carousel */}
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={prevProject}
+                  className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
+                >
+                  <ChevronLeft className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+                </button>
+
+                <div className="flex space-x-2 items-center">
+                  {projects.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setProjectIndex(i)}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        i === projectIndex ? "w-6 bg-[#3468CC] dark:bg-[#5C8AE6]" : "w-2 bg-gray-300 dark:bg-gray-600"
+                      }`}
+                      aria-label={`Go to slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={nextProject}
+                  className="p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
+                >
+                  <ChevronRight className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Grid para desktop */}
+          <motion.div
+            className="mx-auto hidden md:grid max-w-6xl grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 py-8 md:py-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
+            {projects.map((project, i) => (
+              <motion.div
+                key={i}
+                variants={fadeInScale}
+                whileHover={{
+                  y: -10,
+                  transition: { duration: 0.3 },
+                }}
+              >
+                <Card className="overflow-hidden border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm hover:shadow-xl transition-all duration-300 group">
+                  <div className="relative h-48 w-full overflow-hidden">
+                    <Image
+                      src={project.image || "/placeholder.svg"}
+                      alt={project.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute right-2 top-2 rounded-full bg-gradient-to-r from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC] px-3 py-1 text-xs font-medium text-white shadow-lg">
+                      {project.tag}
+                    </div>
+                  </div>
+                  <CardHeader>
+                    <CardTitle className="text-[#2A54A0] dark:text-[#5C8AE6] group-hover:text-[#3468CC] dark:group-hover:text-white transition-colors duration-300">
+                      {project.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-600 dark:text-gray-300">{project.description}</p>
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      variant="ghost"
+                      className="text-[#3468CC] hover:bg-[#E4EBF8] hover:text-[#2A54A0] dark:text-[#5C8AE6] dark:hover:bg-gray-700 group transition-all duration-300"
+                    >
+                      Ver Caso Completo
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-2" />
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Work Process Section - COMPLETAMENTE REDISEÑADO */}
+      <section
+        id="process"
+        className="w-full py-12 md:py-20 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 transition-colors duration-500"
+      >
+        <div className="container px-4 md:px-6">
+          <motion.div
+            className="flex flex-col items-center justify-center space-y-4 text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+          >
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="inline-block rounded-lg bg-gradient-to-r from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 px-3 py-1 text-sm text-[#3468CC] dark:text-[#5C8AE6] font-semibold"
+              >
+                Proceso
+              </motion.div>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="text-3xl md:text-4xl font-bold tracking-tighter text-transparent bg-gradient-to-r from-[#2A54A0] to-[#3468CC] bg-clip-text dark:from-[#5C8AE6] dark:to-[#3468CC] sm:text-4xl md:text-5xl lg:text-6xl"
+              >
+                Nuestro Enfoque de Trabajo
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                className="max-w-[900px] text-gray-600 dark:text-gray-300 md:text-xl/relaxed lg:text-xl/relaxed xl:text-xl/relaxed"
+              >
+                Un proceso estructurado y transparente para garantizar el éxito de su proyecto.
+              </motion.p>
+            </div>
+          </motion.div>
+
+          {/* Proceso completamente rediseñado */}
+          <div className="mx-auto mt-12 max-w-5xl">
+            {/* Versión móvil */}
+            <div className="md:hidden">
+              {processes.map((process, i) => (
+                <motion.div
+                  key={i}
+                  className="mb-12 relative"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: i * 0.2 }}
+                >
+                  <div className="flex items-center mb-4">
+                    <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-r from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC] text-white font-bold text-lg shadow-lg">
+                      {process.step}
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-xl font-bold text-[#2A54A0] dark:text-[#5C8AE6]">{process.title}</h3>
+                    </div>
+                  </div>
+                  <div className="pl-16">
+                    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center justify-center mb-4 w-16 h-16 mx-auto bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 rounded-full">
+                        {process.icon}
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-300">{process.description}</p>
+                    </div>
+                  </div>
+                  {i < processes.length - 1 && (
+                    <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-gradient-to-b from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC]"></div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Versión desktop */}
+            <div className="hidden md:block relative">
+              {/* Línea de conexión horizontal */}
+              <div className="absolute top-24 left-0 w-full h-1 bg-gradient-to-r from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC] rounded-full"></div>
+
+              <div className="grid grid-cols-4 gap-6">
+                {processes.map((process, i) => (
+                  <motion.div
+                    key={i}
+                    className="relative"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: i * 0.2 }}
+                    whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                  >
+                    <div className="flex flex-col items-center">
+                      {/* Número del paso */}
+                      <div className="z-10 w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-r from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC] text-white font-bold text-lg shadow-lg mb-4">
+                        {process.step}
+                      </div>
+
+                      {/* Línea vertical que conecta con la tarjeta */}
+                      <div className="w-1 h-8 bg-gradient-to-b from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC]"></div>
+
+                      {/* Tarjeta con contenido */}
+                      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 h-full w-full">
+                        <div className="flex items-center justify-center mb-4 w-16 h-16 mx-auto bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 rounded-full">
+                          {process.icon}
+                        </div>
+                        <h3 className="text-xl font-bold text-[#2A54A0] dark:text-[#5C8AE6] text-center mb-3">
+                          {process.title}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-300 text-center">{process.description}</p>
+                      </div>
+                    </div>
+
+                    {/* Indicador de completado */}
+                    <motion.div
+                      className="absolute top-0 right-0 bg-white dark:bg-gray-900 rounded-full p-1 shadow-md"
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      transition={{ delay: i * 0.3 + 0.5, duration: 0.3 }}
+                      viewport={{ once: true }}
+                    >
+                      <Check className="h-4 w-4 text-green-500" />
+                    </motion.div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section
+        id="contact"
+        className="w-full py-12 md:py-20 bg-gradient-to-br from-white to-[#E4EBF8] dark:from-gray-900 dark:to-gray-800 border-t border-gray-100 dark:border-gray-800 transition-colors duration-500"
+      >
+        <div className="container px-4 md:px-6">
+          <motion.div
+            className="flex flex-col items-center justify-center space-y-4 text-center"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+          >
+            <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="inline-block rounded-lg bg-gradient-to-r from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 px-3 py-1 text-sm text-[#3468CC] dark:text-[#5C8AE6] font-semibold"
+              >
+                Contacto
+              </motion.div>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="text-3xl md:text-4xl font-bold tracking-tighter text-transparent bg-gradient-to-r from-[#2A54A0] to-[#3468CC] bg-clip-text dark:from-[#5C8AE6] dark:to-[#3468CC] sm:text-4xl md:text-5xl lg:text-6xl"
+              >
+                ¿Listo para Transformar su Negocio?
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                className="max-w-[900px] text-gray-600 dark:text-gray-300 md:text-xl/relaxed lg:text-xl/relaxed xl:text-xl/relaxed"
+              >
+                Contáctenos hoy mismo para una consulta gratuita y descubra cómo Next Codex puede ayudarle a alcanzar
+                sus objetivos empresariales.
+              </motion.p>
+            </div>
+          </motion.div>
+          <motion.div
+            className="mx-auto mt-8 md:mt-12 max-w-5xl grid gap-6 md:gap-8 md:grid-cols-2"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={staggerContainer}
+          >
+            <motion.div variants={fadeInScale}>
+              <Card className="border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader>
+                  <CardTitle className="text-[#2A54A0] dark:text-[#5C8AE6]">Envíenos un Mensaje</CardTitle>
+                  <CardDescription className="dark:text-gray-300">
+                    Complete el formulario y nos pondremos en contacto con usted lo antes posible.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form className="grid gap-4">
+                    <div className="grid gap-2">
+                      <label htmlFor="name" className="text-sm font-medium leading-none">
+                        Nombre
+                      </label>
+                      <input
+                        id="name"
+                        className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 focus:border-[#3468CC] dark:focus:border-[#5C8AE6] transition-colors"
+                        placeholder="Ingrese su nombre"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <label htmlFor="email" className="text-sm font-medium leading-none">
+                        Email
+                      </label>
+                      <input
+                        id="email"
+                        type="email"
+                        className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 focus:border-[#3468CC] dark:focus:border-[#5C8AE6] transition-colors"
+                        placeholder="Ingrese su email"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <label htmlFor="company" className="text-sm font-medium leading-none">
+                        Empresa
+                      </label>
+                      <input
+                        id="company"
+                        className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 focus:border-[#3468CC] dark:focus:border-[#5C8AE6] transition-colors"
+                        placeholder="Ingrese el nombre de su empresa"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <label htmlFor="message" className="text-sm font-medium leading-none">
+                        Mensaje
+                      </label>
+                      <textarea
+                        id="message"
+                        className="min-h-[120px] rounded-md border border-input bg-background px-3 py-2 text-sm dark:bg-gray-700 dark:border-gray-600 focus:border-[#3468CC] dark:focus:border-[#5C8AE6] transition-colors"
+                        placeholder="¿Cómo podemos ayudarle?"
+                      />
+                    </div>
+                    <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                      <Button className="w-full bg-gradient-to-r from-[#3468CC] to-[#2A54A0] hover:from-[#2A54A0] hover:to-[#1E3C7A] dark:from-[#5C8AE6] dark:to-[#3468CC] text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                        Enviar Mensaje
+                      </Button>
+                    </motion.div>
+                  </form>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div variants={fadeInScale} className="flex flex-col justify-center space-y-4">
+              <Card className="border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader>
+                  <CardTitle className="text-[#2A54A0] dark:text-[#5C8AE6]">Información de Contacto</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-start space-x-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800">
+                      <MessageSquare className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Email</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">info@nextcodex.com</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800">
+                      <MessageSquare className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Teléfono</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">+1 (555) 123-4567</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800">
+                      <MessageSquare className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Dirección</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">Av. Tecnológica 123, Ciudad Innovación</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader>
+                  <CardTitle className="text-[#2A54A0] dark:text-[#5C8AE6]">Horario de Atención</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Lunes a Viernes: 9:00 AM - 6:00 PM</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Soporte Técnico: 24/7</p>
+                </CardContent>
+              </Card>
             </motion.div>
           </motion.div>
         </div>
-      </div>
-    </section>
-  )
-}
+      </section>
 
-function Footer() {
-  return (
-    <motion.footer
-      className="w-full border-t py-6 md:py-8"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      <div className="container flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <motion.div
-          className="flex items-center gap-2"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <Code className="h-5 w-5 text-primary" />
-          <span className="text-lg font-semibold">Next Codex</span>
-        </motion.div>
-        <motion.nav
-          className="flex gap-4 sm:gap-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          {["Política de Privacidad", "Términos de Servicio", "Carreras", "Blog"].map((item, i) => (
-            <motion.div
-              key={item}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3, delay: 0.4 + i * 0.1 }}
-            >
-              <Link
-                href="#"
-                className="text-sm font-medium hover:underline underline-offset-4 hover:text-primary transition-colors duration-300"
+      {/* CTA Section */}
+      <section className="w-full bg-gradient-to-r from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC] py-12 md:py-16 transition-colors duration-500">
+        <div className="container px-4 md:px-6">
+          <motion.div
+            className="flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold tracking-tighter text-white sm:text-3xl">
+                ¿Listo para comenzar su proyecto?
+              </h2>
+              <p className="max-w-[600px] text-[#E4EBF8]">
+                Agende una demostración gratuita con nuestros expertos hoy mismo.
+              </p>
+            </div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                className="bg-white text-[#3468CC] hover:bg-[#E4EBF8] shadow-lg hover:shadow-xl transition-all duration-300"
+                onClick={() => scrollToSection("contact")}
               >
-                {item}
-              </Link>
+                Solicitar Demo
+              </Button>
             </motion.div>
-          ))}
-        </motion.nav>
-        <motion.div
-          className="text-sm text-muted-foreground"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-        >
-          © {new Date().getFullYear()} Next Codex. Todos los derechos reservados.
-        </motion.div>
-      </div>
-    </motion.footer>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="w-full border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 py-6 md:py-0 transition-colors duration-500">
+        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+          <div className="flex items-center gap-2">
+            <Code className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+            <p className="text-sm text-muted-foreground dark:text-gray-400">
+              © 2025 Next Codex. Todos los derechos reservados.
+            </p>
+          </div>
+          <div className="flex gap-4">
+            <Link
+              href="#"
+              className="text-sm text-muted-foreground dark:text-gray-400 hover:text-[#3468CC] dark:hover:text-[#5C8AE6] transition-colors"
+            >
+              Política de Privacidad
+            </Link>
+            <Link
+              href="#"
+              className="text-sm text-muted-foreground dark:text-gray-400 hover:text-[#3468CC] dark:hover:text-[#5C8AE6] transition-colors"
+            >
+              Términos de Servicio
+            </Link>
+            <Link
+              href="#"
+              className="text-sm text-muted-foreground dark:text-gray-400 hover:text-[#3468CC] dark:hover:text-[#5C8AE6] transition-colors"
+            >
+              Mapa del Sitio
+            </Link>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }
 
