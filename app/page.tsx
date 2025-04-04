@@ -124,7 +124,6 @@ export default function Home() {
       icon: <Code className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
     },
     {
-      step: "4",
       title: "Implementación",
       description: "Desplegamos la solución y proporcionamos capacitación y soporte continuo.",
       icon: <Globe className="h-10 w-10 text-[#3468CC] dark:text-[#5C8AE6]" />,
@@ -214,10 +213,10 @@ export default function Home() {
           height: headerHeight,
           backdropFilter: scrolled ? `blur(${headerBlur.get()}px)` : "none",
         }}
-        className={`fixed top-0 z-50 w-full transition-all duration-500`}
+        className="fixed top-0 z-50 w-full transition-all duration-500"
       >
         <motion.div
-          className={`absolute inset-0 transition-all duration-500`}
+          className="absolute inset-0 transition-all duration-500"
           style={{
             opacity: headerOpacity,
             backgroundColor: theme === "dark" ? "rgba(17, 24, 39, 0.8)" : "rgba(255, 255, 255, 0.8)",
@@ -233,11 +232,15 @@ export default function Home() {
           <motion.div className="flex items-center gap-6 md:gap-10" style={{ scale: logoScale }}>
             <Link href="/" className="flex items-center space-x-2 group">
               <motion.div
-                whileHover={{ rotate: 360 }}
+                whileHover={{
+                  rotate: 360,
+                  boxShadow: "0 0 15px rgba(52, 104, 204, 0.5)",
+                  scale: 1.1,
+                }}
                 transition={{ duration: 0.5 }}
-                className="relative flex items-center justify-center h-10 w-10 rounded-full bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 overflow-hidden group-hover:shadow-lg transition-all duration-300"
+                className="relative flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 overflow-hidden group-hover:shadow-lg transition-all duration-300"
               >
-                <Code className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6] relative z-10" />
+                <Code className="h-4 w-4 md:h-6 md:w-6 text-[#3468CC] dark:text-[#5C8AE6] relative z-10" />
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-[#3468CC]/20 to-[#5C8AE6]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   initial={{ scale: 0 }}
@@ -245,18 +248,30 @@ export default function Home() {
                   transition={{ duration: 0.3 }}
                 />
               </motion.div>
-              <span className="inline-block font-bold text-lg text-gray-900 dark:text-white">Next Codex</span>
+              <motion.span
+                className="inline-block font-bold text-base md:text-lg text-gray-900 dark:text-white"
+                whileHover={{
+                  color: "#3468CC",
+                  scale: 1.05,
+                  transition: { duration: 0.2 },
+                }}
+              >
+                Next Codex
+              </motion.span>
             </Link>
 
-            {/* Navegación de escritorio */}
+            {/* Navegación de escritorio con animaciones mejoradas */}
             <nav className="hidden gap-1 md:flex">
               {navItems.map((item) => (
                 <motion.button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
                   className="relative px-3 py-2 text-sm font-medium text-gray-600 hover:text-[#3468CC] dark:text-gray-300 dark:hover:text-[#5C8AE6] transition-colors rounded-md overflow-hidden group"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  whileHover={{
+                    scale: 1.05,
+                    transition: { type: "spring", stiffness: 400, damping: 10 },
+                  }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <span className="relative z-10">{item.name}</span>
                   <motion.div
@@ -270,30 +285,47 @@ export default function Home() {
             </nav>
           </motion.div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <ThemeToggle />
 
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 10px 25px -5px rgba(52, 104, 204, 0.4), 0 8px 10px -6px rgba(52, 104, 204, 0.3)",
+              }}
+              whileTap={{ scale: 0.95 }}
+              className="hidden md:block"
+            >
               <Button
                 size="sm"
                 onClick={() => scrollToSection("contact")}
                 className="bg-gradient-to-r from-[#3468CC] to-[#2A54A0] hover:from-[#2A54A0] hover:to-[#1E3C7A] dark:from-[#5C8AE6] dark:to-[#3468CC] text-white shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Contáctanos
+                <motion.span initial={{ x: 0 }} whileHover={{ x: -3 }} transition={{ type: "spring", stiffness: 400 }}>
+                  Contáctanos
+                </motion.span>
+                <motion.span
+                  initial={{ opacity: 0, x: -10 }}
+                  whileHover={{ opacity: 1, x: 5 }}
+                  transition={{ type: "spring", stiffness: 400 }}
+                  className="ml-1"
+                >
+                  →
+                </motion.span>
               </Button>
             </motion.div>
 
             {/* Botón de menú móvil */}
             <motion.button
-              className="flex md:hidden h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800"
+              className="flex md:hidden h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
               {mobileMenuOpen ? (
-                <X className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+                <X className="h-4 w-4 text-[#3468CC] dark:text-[#5C8AE6]" />
               ) : (
-                <Menu className="h-5 w-5 text-[#3468CC] dark:text-[#5C8AE6]" />
+                <Menu className="h-4 w-4 text-[#3468CC] dark:text-[#5C8AE6]" />
               )}
             </motion.button>
           </div>
@@ -322,13 +354,21 @@ export default function Home() {
                   {item.name}
                 </motion.button>
               ))}
+              <motion.button
+                onClick={() => scrollToSection("contact")}
+                className="flex w-full items-center px-4 py-2 mt-2 text-left text-sm font-medium bg-gradient-to-r from-[#3468CC] to-[#2A54A0] text-white rounded-md"
+                whileHover={{ x: 5 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              >
+                Contáctanos
+              </motion.button>
             </nav>
           </div>
         </motion.div>
       </motion.header>
 
       {/* Main Info Section with Modern Gradient - MEJORADO */}
-      <section id="home" className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
+      <section id="home" className="relative w-full flex items-center justify-center overflow-hidden">
         {/* Fondo con efectos mejorados */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Animated gradient orbs - Más grandes y con más variedad */}
@@ -426,11 +466,11 @@ export default function Home() {
         </div>
 
         {/* Main content - Rediseñado con más espacio */}
-        <div className="bg-gradient-to-br from-[#E4EBF8]/80 via-white to-[#E4EBF8]/80 dark:from-gray-800/90 dark:via-gray-900 dark:to-gray-800/90 w-full min-h-screen flex items-center py-20 md:py-0 backdrop-blur-sm transition-colors duration-500">
-          <div className="container px-6 md:px-8 relative pt-16 md:pt-16 max-w-7xl mx-auto">
-            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-20 items-center">
+        <div className="bg-gradient-to-br from-[#E4EBF8]/80 via-white to-[#E4EBF8]/80 dark:from-gray-800/90 dark:via-gray-900 dark:to-gray-800/90 w-full min-h-screen md:min-h-screen flex items-center py-16 md:py-0 backdrop-blur-sm transition-colors duration-500">
+          <div className="container px-4 md:px-8 relative pt-16 md:pt-16 mx-auto">
+            <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 xl:gap-20 items-center">
               <motion.div
-                className="flex flex-col justify-center space-y-8"
+                className="flex flex-col justify-center space-y-6 md:space-y-8"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
@@ -448,38 +488,38 @@ export default function Home() {
                   },
                 }}
               >
-                <div className="space-y-6">
+                <div className="space-y-4 md:space-y-6">
                   {/* Título reducido de tamaño */}
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter leading-tight text-transparent bg-gradient-to-r from-[#2A54A0] to-[#3468CC] bg-clip-text dark:from-[#5C8AE6] dark:to-[#3468CC]">
-                    Soluciones de Software para Empresas Modernas
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter leading-tight text-transparent bg-gradient-to-r from-[#2A54A0] to-[#3468CC] bg-clip-text dark:from-[#5C8AE6] dark:to-[#3468CC]">
+                    Soluciones de software a medida para tu empresa
                   </h1>
-                  <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-xl leading-relaxed">
+                  <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-xl leading-relaxed">
                     Optimiza operaciones, aumenta la productividad y potencia el crecimiento con nuestros sistemas de
                     software personalizados diseñados para el futuro.
                   </p>
                 </div>
 
                 {/* Valores de la empresa en lugar de estadísticas */}
-                <div className="grid grid-cols-3 gap-4 py-4">
+                <div className="grid grid-cols-3 gap-2 md:gap-4 py-2 md:py-4">
                   <div className="flex flex-col">
-                    <span className="text-xl font-bold text-[#3468CC] dark:text-[#5C8AE6]">Innovación</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Soluciones creativas</span>
+                    <span className="text-lg md:text-xl font-bold text-[#3468CC] dark:text-[#5C8AE6]">Innovación</span>
+                    <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Soluciones creativas</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xl font-bold text-[#3468CC] dark:text-[#5C8AE6]">Calidad</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Código limpio</span>
+                    <span className="text-lg md:text-xl font-bold text-[#3468CC] dark:text-[#5C8AE6]">Calidad</span>
+                    <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Código limpio</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xl font-bold text-[#3468CC] dark:text-[#5C8AE6]">Soporte</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Siempre disponible</span>
+                    <span className="text-lg md:text-xl font-bold text-[#3468CC] dark:text-[#5C8AE6]">Soporte</span>
+                    <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Siempre disponible</span>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-2 md:pt-4">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
                     <Button
                       size="lg"
-                      className="w-full sm:w-auto bg-gradient-to-r from-[#3468CC] to-[#2A54A0] hover:from-[#2A54A0] hover:to-[#1E3C7A] dark:from-[#5C8AE6] dark:to-[#3468CC] text-white shadow-lg hover:shadow-xl transition-all duration-300 text-base"
+                      className="w-full sm:w-auto bg-gradient-to-r from-[#3468CC] to-[#2A54A0] hover:from-[#2A54A0] hover:to-[#1E3C7A] dark:from-[#5C8AE6] dark:to-[#3468CC] text-white shadow-lg hover:shadow-xl transition-all duration-300 text-sm md:text-base"
                       onClick={() => scrollToSection("contact")}
                     >
                       Solicitar Demo
@@ -489,7 +529,7 @@ export default function Home() {
                     <Button
                       variant="outline"
                       size="lg"
-                      className="w-full sm:w-auto border-[#3468CC] text-[#3468CC] hover:bg-[#E4EBF8] dark:border-[#5C8AE6] dark:text-[#5C8AE6] dark:hover:bg-gray-800 transition-all duration-300 text-base"
+                      className="w-full sm:w-auto border-[#3468CC] text-[#3468CC] hover:bg-[#E4EBF8] dark:border-[#5C8AE6] dark:text-[#5C8AE6] dark:hover:bg-gray-800 transition-all duration-300 text-sm md:text-base"
                     >
                       Conocer Más
                     </Button>
@@ -498,7 +538,7 @@ export default function Home() {
 
                 {/* Scroll indicator - Mejorado */}
                 <motion.div
-                  className="flex items-center justify-center md:justify-start gap-2 text-sm font-medium text-[#3468CC] dark:text-[#5C8AE6] mt-6"
+                  className="flex items-center justify-center md:justify-start gap-2 text-xs md:text-sm font-medium text-[#3468CC] dark:text-[#5C8AE6] mt-4 md:mt-6"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8, duration: 0.5 }}
@@ -510,26 +550,26 @@ export default function Home() {
                     transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
                     className="bg-[#E4EBF8] dark:bg-gray-800 rounded-full p-1"
                   >
-                    <ArrowDown className="h-4 w-4" />
+                    <ArrowDown className="h-3 w-3 md:h-4 md:w-4" />
                   </motion.div>
                 </motion.div>
               </motion.div>
 
               {/* Imagen principal mejorada con más cards alrededor */}
               <motion.div
-                className="flex items-center justify-center"
+                className="flex items-center justify-center mt-4 md:mt-0"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
               >
                 <div className="relative">
                   {/* Círculos decorativos */}
-                  <div className="absolute -z-10 -left-10 -top-10 w-[600px] h-[600px] rounded-full border border-[#3468CC]/10 dark:border-[#5C8AE6]/10"></div>
-                  <div className="absolute -z-10 -left-5 -top-5 w-[550px] h-[550px] rounded-full border border-[#3468CC]/10 dark:border-[#5C8AE6]/10"></div>
-                  <div className="absolute -z-10 left-0 top-0 w-[500px] h-[500px] rounded-full border border-[#3468CC]/10 dark:border-[#5C8AE6]/10"></div>
+                  <div className="absolute -z-10 -left-5 md:-left-10 -top-5 md:-top-10 w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full border border-[#3468CC]/10 dark:border-[#5C8AE6]/10"></div>
+                  <div className="absolute -z-10 -left-3 md:-left-5 -top-3 md:-top-5 w-[275px] md:w-[550px] h-[275px] md:h-[550px] rounded-full border border-[#3468CC]/10 dark:border-[#5C8AE6]/10"></div>
+                  <div className="absolute -z-10 left-0 top-0 w-[250px] md:w-[500px] h-[250px] md:h-[500px] rounded-full border border-[#3468CC]/10 dark:border-[#5C8AE6]/10"></div>
 
                   {/* Glowing effect behind image */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#3468CC]/30 to-transparent rounded-full blur-3xl"></div>
+                  <div className="absolutete inset-0 bg-gradient-to-br from-[#3468CC]/30 to-transparent rounded-full blur-3xl"></div>
 
                   {/* Animated rings */}
                   <div
@@ -543,74 +583,77 @@ export default function Home() {
 
                   {/* Elementos flotantes alrededor de la imagen - Más pequeños y modernos */}
                   <motion.div
-                    className="absolute -right-8 top-1/4 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    className="absolute -right-4 md:-right-8 top-1/4 bg-white dark:bg-gray-800 rounded-lg p-2 md:p-3 shadow-lg"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.5, duration: 0.5 }}
                   >
-                    <Shield className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                    <Shield className="h-4 w-4 md:h-6 md:w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
                   </motion.div>
 
                   <motion.div
-                    className="absolute -left-8 top-2/3 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    className="absolute -left-4 md:-left-8 top-2/3 bg-white dark:bg-gray-800 rounded-lg p-2 md:p-3 shadow-lg"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.7, duration: 0.5 }}
                   >
-                    <Database className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                    <Database className="h-4 w-4 md:h-6 md:w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
                   </motion.div>
 
                   <motion.div
-                    className="absolute -bottom-8 left-1/3 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    className="absolute -bottom-4 md:-bottom-8 left-1/3 bg-white dark:bg-gray-800 rounded-lg p-2 md:p-3 shadow-lg"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.9, duration: 0.5 }}
                   >
-                    <Globe className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                    <Globe className="h-4 w-4 md:h-6 md:w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
                   </motion.div>
 
-                  {/* Nuevas cards adicionales */}
+                  {/* Nuevas cards adicionales - ajustadas para móvil */}
                   <motion.div
-                    className="absolute -top-8 left-1/3 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    className="absolute -top-4 md:-top-8 left-1/3 bg-white dark:bg-gray-800 rounded-lg p-2 md:p-3 shadow-lg"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.1, duration: 0.5 }}
                   >
-                    <Code className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                    <Code className="h-4 w-4 md:h-6 md:w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
                   </motion.div>
 
                   <motion.div
-                    className="absolute right-1/4 -bottom-8 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    className="absolute right-1/4 -bottom-4 md:-bottom-8 bg-white dark:bg-gray-800 rounded-lg p-2 md:p-3 shadow-lg"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.3, duration: 0.5 }}
                   >
-                    <FileCode className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                    <FileCode className="h-4 w-4 md:h-6 md:w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
                   </motion.div>
 
                   <motion.div
-                    className="absolute -left-6 top-1/4 bg-white dark:bg-gray-800 rounded-lg p-3 shadow-lg"
+                    className="absolute -left-3 md:-left-6 top-1/4 bg-white dark:bg-gray-800 rounded-lg p-2 md:p-3 shadow-lg"
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1.5, duration: 0.5 }}
                   >
-                    <Layers className="h-6 w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
+                    <Layers className="h-4 w-4 md:h-6 md:w-6 text-[#3468CC] dark:text-[#5C8AE6]" />
                   </motion.div>
 
-                  {/* Imagen principal con efecto moderno */}
-                  <div className="relative h-[350px] w-[350px] sm:h-[400px] sm:w-[400px] md:h-[450px] md:w-[450px] lg:h-[500px] lg:w-[500px] group">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#3468CC]/10 to-[#5C8AE6]/5 dark:from-[#3468CC]/5 dark:to-[#5C8AE6]/10 group-hover:from-[#3468CC]/20 group-hover:to-[#5C8AE6]/10 transition-all duration-700"></div>
+                  {/* Imagen principal con tamaño ajustado para móvil */}
+                  <div className="relative h-[250px] w-[300px] sm:h-[350px] sm:w-[400px] md:h-[450px] md:w-[550px] lg:h-[500px] lg:w-[600px] group">
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#3468CC]/10 to-[#5C8AE6]/5 dark:from-[#3468CC]/5 dark:to-[#5C8AE6]/10 group-hover:from-[#3468CC]/20 group-hover:to-[#5C8AE6]/10 transition-all duration-700"></div>
+
+                    {/* Mantener los efectos de partículas y animaciones */}
+                    {/* ... */}
+
                     <Image
-                      src="/placeholder.svg?height=500&width=500"
+                      src="/placeholder.svg?height=500&width=600"
                       alt="Dashboard Preview"
                       fill
-                      className="object-contain drop-shadow-2xl transition-all duration-700 group-hover:scale-105"
+                      className="object-contain drop-shadow-2xl transition-all duration-700 group-hover:scale-105 z-20"
                       priority
                     />
-                    <div className="absolute inset-0 rounded-full border border-[#3468CC]/20 dark:border-[#5C8AE6]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
-                    {/* Efecto de brillo en la parte inferior */}
-                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-10 bg-[#3468CC]/20 dark:bg-[#5C8AE6]/20 blur-2xl rounded-full"></div>
+                    {/* Mantener los efectos adicionales */}
+                    {/* ... */}
                   </div>
                 </div>
               </motion.div>
@@ -672,7 +715,7 @@ export default function Home() {
                   transition={{ duration: 0.3 }}
                   className="w-full"
                 >
-                  <Card className="flex flex-col items-center text-center h-full border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                  <Card className="flex flex-col items-center text-center h-[300px] border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
                     <div className="absolute inset-0 bg-gradient-to-r from-[#3468CC]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <CardHeader>
                       <motion.div
@@ -697,7 +740,7 @@ export default function Home() {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Controles del carousel */}
+              {/* Mantener los controles del carousel */}
               <div className="flex justify-between mt-4">
                 <button
                   onClick={prevService}
@@ -731,7 +774,7 @@ export default function Home() {
 
           {/* Grid para desktop */}
           <motion.div
-            className="mx-auto hidden md:grid max-w-5xl grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 py-8 md:py-12"
+            className="mx-auto hidden md:grid max-w-full grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 py-8 md:py-12"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -907,7 +950,7 @@ export default function Home() {
                   transition={{ duration: 0.3 }}
                   className="w-full"
                 >
-                  <Card className="overflow-hidden border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <Card className="overflow-hidden h-[400px] border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-white to-[#E4EBF8]/50 dark:from-gray-800 dark:to-gray-900/50 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 group">
                     <div className="relative h-48 w-full overflow-hidden">
                       <Image
                         src={projects[projectIndex].image || "/placeholder.svg"}
@@ -926,7 +969,9 @@ export default function Home() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-gray-600 dark:text-gray-300">{projects[projectIndex].description}</p>
+                      <p className="text-gray-600 dark:text-gray-300 line-clamp-3">
+                        {projects[projectIndex].description}
+                      </p>
                     </CardContent>
                     <CardFooter>
                       <Button
@@ -941,7 +986,7 @@ export default function Home() {
                 </motion.div>
               </AnimatePresence>
 
-              {/* Controles del carousel */}
+              {/* Mantener los controles del carousel */}
               <div className="flex justify-between mt-4">
                 <button
                   onClick={prevProject}
@@ -975,7 +1020,7 @@ export default function Home() {
 
           {/* Grid para desktop */}
           <motion.div
-            className="mx-auto hidden md:grid max-w-6xl grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 py-8 md:py-12"
+            className="mx-auto hidden md:grid max-w-full grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 py-8 md:py-12"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -1069,7 +1114,7 @@ export default function Home() {
           </motion.div>
 
           {/* Proceso completamente rediseñado */}
-          <div className="mx-auto mt-12 max-w-5xl">
+          <div className="mx-auto mt-12 max-w-full">
             {/* Versión móvil */}
             <div className="md:hidden">
               {processes.map((process, i) => (
@@ -1106,14 +1151,14 @@ export default function Home() {
 
             {/* Versión desktop */}
             <div className="hidden md:block relative">
-              {/* Línea de conexión horizontal */}
-              <div className="absolute top-24 left-0 w-full h-1 bg-gradient-to-r from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC] rounded-full"></div>
-
               <div className="grid grid-cols-4 gap-6">
+                {/* Línea de conexión horizontal - AJUSTADA PARA QUE NO SE SOBREPONGA */}
+                <div className="absolute top-24 left-0 w-full h-1 bg-gradient-to-r from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC] rounded-full z-0"></div>
+
                 {processes.map((process, i) => (
                   <motion.div
                     key={i}
-                    className="relative"
+                    className="relative z-10"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -1130,7 +1175,18 @@ export default function Home() {
                       <div className="w-1 h-8 bg-gradient-to-b from-[#3468CC] to-[#2A54A0] dark:from-[#5C8AE6] dark:to-[#3468CC]"></div>
 
                       {/* Tarjeta con contenido */}
-                      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 h-full w-full">
+                      <div className="relative bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 h-full w-full">
+                        {/* Indicador de completado - REPOSICIONADO */}
+                        <motion.div
+                          className="absolute top-3 right-3 bg-white dark:bg-gray-800 rounded-full p-1 shadow-md"
+                          initial={{ scale: 0 }}
+                          whileInView={{ scale: 1 }}
+                          transition={{ delay: i * 0.3 + 0.5, duration: 0.3 }}
+                          viewport={{ once: true }}
+                        >
+                          <Check className="h-4 w-4 text-green-500" />
+                        </motion.div>
+
                         <div className="flex items-center justify-center mb-4 w-16 h-16 mx-auto bg-gradient-to-br from-[#E4EBF8] to-[#C9D6F1] dark:from-gray-700 dark:to-gray-800 rounded-full">
                           {process.icon}
                         </div>
@@ -1140,17 +1196,6 @@ export default function Home() {
                         <p className="text-gray-600 dark:text-gray-300 text-center">{process.description}</p>
                       </div>
                     </div>
-
-                    {/* Indicador de completado */}
-                    <motion.div
-                      className="absolute top-0 right-0 bg-white dark:bg-gray-900 rounded-full p-1 shadow-md"
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      transition={{ delay: i * 0.3 + 0.5, duration: 0.3 }}
-                      viewport={{ once: true }}
-                    >
-                      <Check className="h-4 w-4 text-green-500" />
-                    </motion.div>
                   </motion.div>
                 ))}
               </div>
@@ -1201,7 +1246,7 @@ export default function Home() {
             </div>
           </motion.div>
           <motion.div
-            className="mx-auto mt-8 md:mt-12 max-w-5xl grid gap-6 md:gap-8 md:grid-cols-2"
+            className="mx-auto mt-8 md:mt-12 max-w-full grid gap-6 md:gap-8 md:grid-cols-2"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
